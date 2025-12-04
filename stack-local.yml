@@ -1,0 +1,47 @@
+version: "3.9"
+
+networks:
+  game_net:
+    driver: overlay
+    attachable: true
+
+services:
+  server1:
+    image: mp-ws-server:local
+    environment:
+      - SERVER_ID=1
+    ports:
+      - "8081:8080"
+    networks:
+      - game_net
+    deploy:
+      replicas: 1
+
+  server2:
+    image: mp-ws-server:local
+    environment:
+      - SERVER_ID=2
+    ports:
+      - "8082:8080"
+    networks:
+      - game_net
+    deploy:
+      replicas: 1
+
+  server3:
+    image: mp-ws-server:local
+    environment:
+      - SERVER_ID=3
+    ports:
+      - "8083:8080"
+    networks:
+      - game_net
+    deploy:
+      replicas: 1
+
+  client:
+    image: mp-web-client:local
+    ports:
+      - "8080:80"
+    networks:
+      - game_net

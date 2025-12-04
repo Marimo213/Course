@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Minimal MP Game</title>
+        <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body>
+        <div id="ui">
+            <h3>Выбор сервера</h3>
+            <button onclick="connect('ws://localhost:8081')">Сервер 1</button>
+            <button onclick="connect('ws://localhost:8082')">Сервер 2</button>
+            <button onclick="connect('ws://localhost:8083')">Сервер 3</button>
+            <p id="status">не подключён</p>
+            <div>Игроки онлайн: <span id="online">0</span></div>
+        </div>
+        <canvas id="game" width="800" height="600"></canvas>
+        <script src="/main.js"></script>
+    </body>
+</html>
