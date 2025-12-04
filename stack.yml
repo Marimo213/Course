@@ -7,7 +7,7 @@ networks:
 
 services:
   server1:
-    image: ghcr.io/Marimo213/mp-server:latest
+    image: ghcr.io/marimo213/mp-server:latest
     environment:
       - SERVER_ID=1
     ports:
@@ -18,7 +18,7 @@ services:
       replicas: 1
 
   server2:
-    image: ghcr.io/Marimo213/mp-server:latest
+    image: ghcr.io/marimo213/mp-server:latest
     environment:
       - SERVER_ID=2
     ports:
@@ -29,7 +29,7 @@ services:
       replicas: 1
 
   server3:
-    image: ghcr.io/Marimo213/mp-server:latest
+    image: ghcr.io/marimo213/mp-server:latest
     environment:
       - SERVER_ID=3
     ports:
@@ -40,7 +40,7 @@ services:
       replicas: 1
 
   client:
-    image: ghcr.io/Marimo213/mp-client:latest
+    image: ghcr.io/marimo213/mp-client:latest
     ports:
       - "8080:80"
     networks:
