@@ -10,6 +10,12 @@ let players = {};
 const speed = 200;
 let keys = {};
 
+
+// ✅ ПРАВИЛЬНОЕ ПОДКЛЮЧЕНИЕ ЧЕРЕЗ TRAEFIK
+const WS_URL = "ws://" + location.hostname + ":8080";
+connect(WS_URL);
+
+
 function connect(url) {
   ws = new WebSocket(url);
   status.textContent = "подключение...";
@@ -50,9 +56,11 @@ function updateOnline() {
   onlineEl.textContent = Object.keys(players).length;
 }
 
+
 // управление
 addEventListener("keydown", (e) => (keys[e.key] = true));
 addEventListener("keyup", (e) => (keys[e.key] = false));
+
 
 // игровой цикл
 let last = performance.now();
@@ -63,6 +71,7 @@ function loop(t) {
   if (myId && players[myId]) {
     let moved = false;
     const p = players[myId];
+
     if (keys["ArrowUp"]) {
       p.y -= speed * dt;
       moved = true;
@@ -91,8 +100,10 @@ function loop(t) {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   for (const id in players) {
     const p = players[id];
+
     ctx.fillStyle = p.color;
     ctx.fillRect(p.x - 12, p.y - 12, 24, 24);
 

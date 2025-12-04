@@ -1,78 +1,51 @@
-const WebSocket = require("ws");
-const { v4: uuidv4 } = require("uuid");
+import { WebSocketServer } from "ws";
 
 const PORT = 8080;
-const wss = new WebSocket.Server({ port: PORT });
 
-console.log("WS server running on", PORT);
+// ОБЯЗАТЕЛЬНО 0.0.0.0
+const wss = new WebSocketServer({
+  port: PORT,
+  host: "0.0.0.0"
+});
 
-const players = {}; // id -> {x,y,color}
-
-function broadcast(msg) {
-  const data = JSON.stringify(msg);
-  wss.clients.forEach((c) => {
-    if (c.readyState === WebSocket.OPEN) {
-      c.send(data);
-    }
-  });
-}
+const players = new Map();
 
 wss.on("connection", (ws) => {
-  const id = uuidv4().slice(0, 8);
+  const id = Date.now().toString();
+  players.set(id, ws);
 
-  players[id] = {
-    x: 100 + Math.random() * 500,
-    y: 100 + Math.random() * 300,
-    color: randomColor(),
-  };
+  console.log("Player connected:", id);
 
-  // Отправляем новому клиенту ВСЕХ игроков
-  ws.send(
-    JSON.stringify({
-      type: "init",
-      you: id,
-      players,
-    }),
-  );
+  // отправляем ID новому игроку
+  ws.send(JSON.stringify({
+    type: "init",
+    id
+  }));
 
-  // Сообщаем всем о новом игроке
+  // рассылаем всем, что появился новый игрок
   broadcast({
-    type: "spawn",
-    id,
-    player: players[id],
+    type: "join",
+    id
   });
 
-  ws.on("message", (raw) => {
-    const msg = JSON.parse(raw.toString());
-    if (msg.type === "move") {
-      if (players[id]) {
-        players[id].x = msg.x;
-        players[id].y = msg.y;
-
-        broadcast({
-          type: "move",
-          id,
-          x: msg.x,
-          y: msg.y,
-        });
-      }
-    }
+  ws.on("message", (msg) => {
+    broadcast(JSON.parse(msg));
   });
 
   ws.on("close", () => {
-    delete players[id];
+    players.delete(id);
     broadcast({
-      type: "despawn",
-      id,
+      type: "leave",
+      id
     });
   });
 });
 
-function randomColor() {
-  return (
-    "#" +
-    Math.floor(Math.random() * 0xffffff)
-      .toString(16)
-      .padStart(6, "0")
-  );
+function broadcast(data) {
+  const json = JSON.stringify(data);
+  for (const ws of players.values()) {
+    ws.send(json);
+  }
 }
+
+console.log("WS server running on", PORT);
