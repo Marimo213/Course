@@ -21,10 +21,10 @@ jobs:
 
       - name: Build and push server
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/mp-server:latest ./server
-          docker push ghcr.io/${{ github.repository_owner }}/mp-server:latest
+          docker build -t ghcr.io/marimo213/mp-server:latest ./server
+          docker push ghcr.io/marimo213/mp-server:latest
 
       - name: Build and push client
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/mp-client:latest ./client
-          docker push ghcr.io/${{ github.repository_owner }}/mp-client:latest
+          docker build -t ghcr.io/marimo213/mp-client:latest ./client
+          docker push ghcr.io/marimo213/mp-client:latest
