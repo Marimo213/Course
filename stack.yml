@@ -7,7 +7,7 @@ networks:
 
 services:
   server1:
-    image: mp-ws-server:latest
+    image: ghcr.io/Marimo213/mp-server:latest
     environment:
       - SERVER_ID=1
     ports:
@@ -16,11 +16,9 @@ services:
       - game_net
     deploy:
       replicas: 1
-      restart_policy:
-        condition: any
 
   server2:
-    image: mp-ws-server:latest
+    image: ghcr.io/Marimo213/mp-server:latest
     environment:
       - SERVER_ID=2
     ports:
@@ -29,11 +27,9 @@ services:
       - game_net
     deploy:
       replicas: 1
-      restart_policy:
-        condition: any
 
   server3:
-    image: mp-ws-server:latest
+    image: ghcr.io/Marimo213/mp-server:latest
     environment:
       - SERVER_ID=3
     ports:
@@ -42,16 +38,10 @@ services:
       - game_net
     deploy:
       replicas: 1
-      restart_policy:
-        condition: any
 
   client:
-    image: mp-web-client:latest
+    image: ghcr.io/Marimo213/mp-client:latest
     ports:
       - "8080:80"
     networks:
       - game_net
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
