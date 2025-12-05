@@ -1,50 +1,71 @@
 import { WebSocketServer } from "ws";
 
 const PORT = 8080;
-
-// ОБЯЗАТЕЛЬНО 0.0.0.0
-const wss = new WebSocketServer({
-  port: PORT,
-  host: "0.0.0.0"
-});
+const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
 
 const players = new Map();
 
 wss.on("connection", (ws) => {
   const id = Date.now().toString();
-  players.set(id, ws);
 
-  console.log("Player connected:", id);
+  const player = {
+    x: 400,
+    y: 300,
+    color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+  };
 
-  // отправляем ID новому игроку
-  ws.send(JSON.stringify({
-    type: "init",
-    id
-  }));
+  players.set(id, player);
 
-  // рассылаем всем, что появился новый игрок
+  // ✅ ПРАВИЛЬНЫЙ init
+  ws.send(
+    JSON.stringify({
+      type: "init",
+      you: id,
+      players: Object.fromEntries(players),
+    }),
+  );
+
+  // ✅ ПРАВИЛЬНЫЙ spawn
   broadcast({
-    type: "join",
-    id
+    type: "spawn",
+    id,
+    player,
   });
 
   ws.on("message", (msg) => {
-    broadcast(JSON.parse(msg));
+    const data = JSON.parse(msg);
+
+    if (data.type === "move" && players.has(id)) {
+      players.get(id).x = data.x;
+      players.get(id).y = data.y;
+
+      broadcast({
+        type: "move",
+        id,
+        x: data.x,
+        y: data.y,
+      });
+    }
   });
 
   ws.on("close", () => {
     players.delete(id);
+
+    // ✅ ПРАВИЛЬНЫЙ despawn
     broadcast({
-      type: "leave",
-      id
+      type: "despawn",
+      id,
     });
   });
 });
 
 function broadcast(data) {
   const json = JSON.stringify(data);
-  for (const ws of players.values()) {
-    ws.send(json);
+
+  for (const client of wss.clients) {
+    if (client.readyState === 1) {
+      client.send(json);
+    }
   }
 }
 

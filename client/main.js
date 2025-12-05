@@ -10,11 +10,8 @@ let players = {};
 const speed = 200;
 let keys = {};
 
-
-// ✅ ПРАВИЛЬНОЕ ПОДКЛЮЧЕНИЕ ЧЕРЕЗ TRAEFIK
-const WS_URL = "ws://" + location.hostname + ":8080";
+const WS_URL = "ws://" + location.host + "/ws";
 connect(WS_URL);
-
 
 function connect(url) {
   ws = new WebSocket(url);
@@ -56,11 +53,9 @@ function updateOnline() {
   onlineEl.textContent = Object.keys(players).length;
 }
 
-
 // управление
 addEventListener("keydown", (e) => (keys[e.key] = true));
 addEventListener("keyup", (e) => (keys[e.key] = false));
-
 
 // игровой цикл
 let last = performance.now();
