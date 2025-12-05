@@ -10,7 +10,7 @@ let players = {};
 const speed = 200;
 let keys = {};
 
-const WS_URL = "ws://" + location.host + "/ws";
+const WS_URL = "ws://" + location.hostname + ":8081";
 connect(WS_URL);
 
 function connect(url) {

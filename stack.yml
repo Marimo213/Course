@@ -9,45 +9,46 @@ services:
   traefik:
     image: traefik:v2.14
     command:
-      - "--api.insecure=true"         # панель управления Traefik (для теста)
+      - "--api.insecure=true"
       - "--providers.swarm=true"
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
       - "--providers.swarm.network=game_net"
+
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.ws.address=:8080"  # порт для WebSocket
+      - "--entrypoints.ws.address=:8081" # ✅ ВАЖНО: НЕ 8080!
+
     ports:
-      - "80:80"       # HTTP
-      - "8080:8080"   # WS
+      - "80:80"
+      - "8081:8081"
+
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
     deploy:
       placement:
         constraints:
           - node.role == manager
 
-
   game_server:
-  image: ghcr.io/marimo213/mp-server:latest
-  networks:
-    - game_net
-  deploy:
-    replicas: 3
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.ws.rule=HostSNI(`*`)"
-      - "traefik.tcp.routers.ws.entrypoints=ws"
-      - "traefik.tcp.routers.ws.service=ws-svc"
-      - "traefik.tcp.services.ws-svc.loadbalancer.server.port=8080"
-
+    image: ghcr.io/marimo213/mp-server:latest
+    networks:
+      - game_net
+    deploy:
+      replicas: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tcp.routers.ws.rule=HostSNI(`*`)"
+        - "traefik.tcp.routers.ws.entrypoints=ws"
+        - "traefik.tcp.routers.ws.service=ws-svc"
+        - "traefik.tcp.services.ws-svc.loadbalancer.server.port=8080"
 
   game_client:
     image: ghcr.io/marimo213/mp-client:latest
     networks:
-    - game_net
+      - game_net
     deploy:
       labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`138.124.112.25`)"
-      - "traefik.http.routers.client.entrypoints=web"
-      - "traefik.http.services.client.loadbalancer.server.port=80"
-
+        - "traefik.enable=true"
+        - "traefik.http.routers.client.rule=Host(`138.124.112.25`)"
+        - "traefik.http.routers.client.entrypoints=web"
+        - "traefik.http.services.client.loadbalancer.server.port=80"
