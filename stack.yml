@@ -7,27 +7,23 @@ networks:
 
 services:
   traefik:
-    image: traefik:v2.14
+    image: traefik:latest
     command:
       - "--api.insecure=true"
       - "--providers.swarm=true"
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
       - "--providers.swarm.network=game_net"
-
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.ws.address=:8081" # ✅ ВАЖНО: НЕ 8080!
-
     ports:
       - "80:80"
-      - "8081:8081"
-
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-
     deploy:
       placement:
         constraints:
           - node.role == manager
+    networks:
+      - game_net
 
   game_server:
     image: ghcr.io/marimo213/mp-server:latest
@@ -37,10 +33,9 @@ services:
       replicas: 3
       labels:
         - "traefik.enable=true"
-        - "traefik.tcp.routers.ws.rule=HostSNI(`*`)"
-        - "traefik.tcp.routers.ws.entrypoints=ws"
-        - "traefik.tcp.routers.ws.service=ws-svc"
-        - "traefik.tcp.services.ws-svc.loadbalancer.server.port=8080"
+        - "traefik.http.routers.ws.rule=PathPrefix(`/ws`)"
+        - "traefik.http.routers.ws.entrypoints=web"
+        - "traefik.http.services.ws.loadbalancer.server.port=8080"
 
   game_client:
     image: ghcr.io/marimo213/mp-client:latest
@@ -49,6 +44,6 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.client.rule=Host(`138.124.112.25`)"
+        - "traefik.http.routers.client.rule=PathPrefix(`/`)"
         - "traefik.http.routers.client.entrypoints=web"
         - "traefik.http.services.client.loadbalancer.server.port=80"
