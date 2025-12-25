@@ -13,9 +13,8 @@ let keys = {};
 const WS_URL = "ws://" + location.host + "/ws";
 connect(WS_URL);
 
-// ✅ Ограничение отправки — 20 раз в секунду
 let lastSend = 0;
-const SEND_RATE = 50; // мс
+const SEND_RATE = 50;
 
 function connect(url) {
   ws = new WebSocket(url);
@@ -65,16 +64,13 @@ function updateOnline() {
   onlineEl.textContent = Object.keys(players).length;
 }
 
-// управление
 addEventListener("keydown", (e) => (keys[e.key] = true));
 addEventListener("keyup", (e) => (keys[e.key] = false));
 
-// ✅ Интерполяция
 function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-// игровой цикл
 let last = performance.now();
 function loop(t) {
   const dt = (t - last) / 1000;
@@ -108,7 +104,6 @@ function loop(t) {
     }
   }
 
-  // ✅ ПЛАВНОЕ ПОДТЯГИВАНИЕ К ЦЕЛИ
   for (const id in players) {
     const p = players[id];
     p.x = lerp(p.x, p.tx ?? p.x, 0.15);

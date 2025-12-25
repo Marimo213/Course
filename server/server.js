@@ -16,7 +16,6 @@ wss.on("connection", (ws) => {
 
   players.set(id, player);
 
-  // ✅ ПРАВИЛЬНЫЙ init
   ws.send(
     JSON.stringify({
       type: "init",
@@ -25,7 +24,6 @@ wss.on("connection", (ws) => {
     }),
   );
 
-  // ✅ ПРАВИЛЬНЫЙ spawn
   broadcast({
     type: "spawn",
     id,
@@ -51,7 +49,6 @@ wss.on("connection", (ws) => {
   ws.on("close", () => {
     players.delete(id);
 
-    // ✅ ПРАВИЛЬНЫЙ despawn
     broadcast({
       type: "despawn",
       id,
